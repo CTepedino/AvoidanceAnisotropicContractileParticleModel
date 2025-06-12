@@ -43,7 +43,7 @@ public class Simulation {
     public void run(){
         double time = 0;
         double timeSinceLastPrint = 0;
-        while ((generatedLeft < Parameters.PARTICLES_PER_SIDE && generatedRight < Parameters.PARTICLES_PER_SIDE) && !saturated && Double.compare(time, maxTime) <= 0){
+        while (!saturated && Double.compare(time, maxTime) <= 0){
 
 
             if (timeSinceLastPrint >= dt_2 - 1e-9) {
@@ -51,8 +51,11 @@ public class Simulation {
                 timeSinceLastPrint = 0;
             }
 
-
-            step();
+            boolean generate = true;
+            if ((generatedLeft == Parameters.PARTICLES_PER_SIDE && generatedRight == Parameters.PARTICLES_PER_SIDE)){
+                generate = false;
+            }
+            step(generate);
 
             time += Parameters.DT;
             timeSinceLastPrint += Parameters.DT;
@@ -61,8 +64,10 @@ public class Simulation {
 
     }
 
-    private void step(){
-        generateParticles();
+    private void step(boolean generateParticles){
+        if (generateParticles){
+            generateParticles();
+        }
 
         ruleset.updateParticles(particles, Parameters.DT);
 

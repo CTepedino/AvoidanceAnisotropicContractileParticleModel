@@ -64,6 +64,12 @@ public class Simulation {
 
         writer.close();
 
+        if (saturated){
+            System.out.println("Break condition: saturated");
+        } else {
+            System.out.println("Break condition: time");
+        }
+
     }
 
     private void step(boolean generateParticles){

@@ -108,8 +108,8 @@ def update(frame_idx):
     return list(particles_phys.values()) + list(particles_interact.values())
 
 ani = FuncAnimation(fig, update, frames=len(times), interval=30, blit=True)
+#
+# plt.tight_layout()
+# plt.show()
 
-plt.tight_layout()
-plt.show()
-
-#ani.save("animation.mp4", fps=30)
+ani.save("animation.mp4", fps=30)

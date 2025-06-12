@@ -38,7 +38,8 @@ public class AACPM implements Ruleset {
 
             if (!inContact) {
                 Vector2D avoidance = new Vector2D(0, 0);
-                for (Particle other: getTwoNearestFront(p, particles)){
+                List<Particle> front = getTwoNearestFront(p, particles);
+                for (Particle other: front){
                     avoidance = avoidance.add(computeCollisionVector(p, other));
                 }
 
@@ -116,15 +117,16 @@ public class AACPM implements Ruleset {
     private Vector2D computeWallAvoidance(Particle p){
         Vector2D avoidance = new Vector2D(0, 0);
 
-        if (p.position.y < Parameters.R_MAX * 3) {
+        double distBottom = p.position.y;
+        double distTop = Parameters.W - p.position.y;
+
+        if (distBottom < distTop) {
             Vector2D w = new Vector2D(p.position.x, 0);
             Vector2D e = p.position.subtract(w).normalize();
             double d = p.position.y;
             Vector2D n = e.scale(Parameters.A_W * Math.exp(-d / Parameters.B_W));
             avoidance = avoidance.add(n);
-        }
-
-        if ((Parameters.W - p.position.y) < Parameters.R_MAX * 3) {
+        } else {
             Vector2D w = new Vector2D(p.position.x, Parameters.W);
             Vector2D e = p.position.subtract(w).normalize();
             double d = Parameters.W - p.position.y;

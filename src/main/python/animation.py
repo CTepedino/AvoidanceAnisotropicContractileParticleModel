@@ -44,9 +44,9 @@ for pid in particle_ids:
     particles_interact[pid] = halo
 
 def asignar_color(vx):
-    if vx > 0.05:
+    if vx > 0:
         return "blue"
-    elif vx < -0.05:
+    elif vx < 0:
         return "red"
     else:
         return "black"

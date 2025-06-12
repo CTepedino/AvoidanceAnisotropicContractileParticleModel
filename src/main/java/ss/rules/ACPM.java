@@ -1,6 +1,7 @@
 package ss.rules;
 
 import ss.Parameters;
+import ss.model.Contact;
 import ss.model.Particle;
 import ss.model.Vector2D;
 
@@ -15,22 +16,11 @@ public class ACPM implements Ruleset {
             boolean inContact = false;
             Vector2D repulsion = new Vector2D(0, 0);
 
-            if (Double.compare(p.radius, Parameters.R_MIN)==0){
-                for(Particle other: particles){
-                    if (p == other) continue;
-                    double distance = p.position.distanceTo(other.position);
-                    if (distance < p.radius + other.radius){
-                        inContact = true;
-                        repulsion = repulsion.add(p.position.subtract(other.position).normalize());
-                    }
-                }
-            } else {
-                List<Particle> frontColliders = getFrontColliders(p, particles);
-                for (Particle other: frontColliders){
-                    Vector2D diff = p.position.subtract(other.position);
-                    repulsion = repulsion.add(diff.normalize());
-                    inContact = true;
-                }
+            List<Particle> frontColliders = getFrontColliders(p, particles);
+            for (Particle other: frontColliders){
+                Vector2D diff = p.position.subtract(other.position);
+                repulsion = repulsion.add(diff.normalize());
+                inContact = true;
             }
 
             double yTopDist = Parameters.W - p.position.y;
@@ -65,22 +55,9 @@ public class ACPM implements Ruleset {
     }
 
     private List<Particle> getFrontColliders(Particle p, List<Particle> particles){
-        List<Particle> frontColliders = new ArrayList<>();
-        Vector2D direction = new Vector2D(p.goesLeft? -1:1, 0);
-
-        for (Particle other: particles){
-            if (p == other) continue;
-
-            double distance = p.position.distanceTo(other.position);
-            if(distance < p.radius + other.radius) {
-                double angle = direction.angleWith(p.position.subtract(other.position));
-                if (angle < Math.PI / 2) {
-                    frontColliders.add(other);
-                }
-            }
-
-
-        }
+        List<Particle> frontColliders = new ArrayList<>(particles.stream()
+                .filter(other -> other != p && Contact.isFrontCollider(p, other))
+                .toList());
 
         frontColliders.sort(Comparator.comparingDouble(o -> o.position.distanceTo(p.position)));
         return frontColliders;

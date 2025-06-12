@@ -43,7 +43,7 @@ public class Simulation {
     public void run(){
         double time = 0;
         double timeSinceLastPrint = 0;
-        while (!saturated && Double.compare(time, maxTime) <= 0){
+        while (/*(generatedLeft < Parameters.PARTICLES_PER_SIDE && generatedRight < Parameters.PARTICLES_PER_SIDE) && */!saturated && Double.compare(time, maxTime) <= 0){
 
 
             if (timeSinceLastPrint >= dt_2 - 1e-9) {

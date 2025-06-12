@@ -37,5 +37,13 @@ public class OutputWriter {
         }
     }
 
+    public void close() {
+        try {
+            writer.close();
+        } catch (IOException e){
+            throw new RuntimeException();
+        }
+    }
+
 
 }

@@ -12,7 +12,7 @@ public class AACPM implements Ruleset {
 
 
     @Override
-    public void updateParticles(List<Particle> particles, double dt) {
+    public void updateParticles(List<Particle> particles, double dt){
         for (Particle p: particles){
             boolean inContact = false;
 

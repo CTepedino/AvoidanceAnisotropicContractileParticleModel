@@ -59,6 +59,8 @@ public class Simulation {
 
         }
 
+        writer.close();
+
     }
 
     private void step(){

@@ -1,10 +1,13 @@
+import math
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # Cargar datos
-df = pd.read_csv("out.txt", sep=" ", header=None,
+df = pd.read_csv("out.txt", sep=r"\s+", engine="python", header=None,
                  names=["time", "id", "x", "y", "vx", "vy", "radius"])
+
 
 times = sorted(df["time"].unique())
 particle_ids = sorted(df["id"].unique())
@@ -16,7 +19,9 @@ corridor_width = 3.6
 fig, ax = plt.subplots(figsize=(10, 2.5))
 ax.set_xlim(0, corridor_length)
 ax.set_ylim(0, corridor_width)
-ax.set_title("Simulación AA-CPM")
+
+ax.set_yticks([])
+ax.set_xticks([])
 
 particles_phys = {}      # Círculo físico (radio fijo)
 particles_interact = {}  # Círculo de interacción (radio dinámico)
@@ -49,12 +54,18 @@ def asignar_color(vx):
 def update(frame_idx):
     t = times[frame_idx]
     data = frames[t]
-    ax.set_title(f"t = {t:.2f} s")
+
+    row_line = 0
 
     for _, row in data.iterrows():
+        row_line +=1
+
         pid = row["id"]
         if pid in completadas:
             continue
+
+        if math.isnan(pid):
+            print(f"nan in line {row_line}")
 
         x, y = row["x"], row["y"]
         vx = row["vx"]
@@ -81,7 +92,7 @@ def update(frame_idx):
         if pid not in colors_por_id:
             colors_por_id[pid] = asignar_color(vx)
 
-        # Cuerpo físico
+
         body = particles_phys[pid]
         body.center = (x, y)
         body.set_color(colors_por_id[pid])

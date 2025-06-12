@@ -50,13 +50,16 @@ public class Vector2D {
         return Math.acos(Math.max(-1.0, Math.min(1.0, cos))); // evita NaN por redondeo
     }
 
+    public double signedAngleTo(Vector2D other) {
+        double dot = this.dot(other);
+        double det = this.x * other.y - this.y * other.x; // determinante 2D
+        return Math.atan2(det, dot); // valor en [-π, π]
+    }
+
     public Vector2D rotate(double angle) {
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
-        return new Vector2D(
-                x * cos - y * sin,
-                x * sin + y * cos
-        );
+        return new Vector2D(cos * this.x - sin * this.y, sin * this.x + cos * this.y);
     }
 
     public Vector2D projectOnto(Vector2D v) {

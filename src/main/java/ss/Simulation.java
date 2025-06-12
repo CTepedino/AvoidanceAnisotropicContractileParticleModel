@@ -2,9 +2,7 @@ package ss;
 
 import ss.model.Particle;
 import ss.model.Vector2D;
-import ss.rules.CPM;
-import ss.rules.Naive;
-import ss.rules.Ruleset;
+import ss.rules.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +16,7 @@ public class Simulation {
     private int exitedLeft = 0;
     private int exitedRight = 0;
 
-    private Ruleset ruleset = new CPM();
+    private final Ruleset ruleset = new AACPM();
     private final List<Particle> particles;
 
     private double timeSinceLastInjection = 0;

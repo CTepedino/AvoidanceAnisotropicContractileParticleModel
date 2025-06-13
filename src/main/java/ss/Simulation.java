@@ -17,7 +17,7 @@ public class Simulation {
     private int exitedRight = 0;
 
     private final Ruleset ruleset = new AACPM();
-    private final List<Particle> particles;
+    private List<Particle> particles;
 
     private double timeSinceLastInjection = 0;
 
@@ -77,7 +77,7 @@ public class Simulation {
             generateParticles();
         }
 
-        ruleset.updateParticles(particles, Parameters.DT);
+        particles = ruleset.updateParticles(particles);
 
         removedArrived();
     }

@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface Ruleset {
 
-    void updateParticles(List<Particle> particles, double dt);
+    List<Particle> updateParticles(List<Particle> particles);
 }

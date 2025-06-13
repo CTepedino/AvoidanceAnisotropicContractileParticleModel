@@ -77,10 +77,6 @@ def analyze_multiple_qin_interval(file_paths, dt=1.0, t_start=0.0, t_end=np.inf,
     for q, m, e in zip(qin_values, mean_vx_all, std_errors):
         print(f"Qin = {q:.3f} -> <|vx|> = {m:.4f} ± {e:.4f}")
 
-    import os
-import matplotlib.pyplot as plt
-import numpy as np
-
 def get_last_simulation_time(file_path):
     """
     Returns the maximum t value found in the file.
@@ -137,6 +133,66 @@ def plot_final_time_vs_qin(file_paths, output_plot="tmax_vs_qin.png"):
     print(f"Saved plot to {output_plot}")
 
 
+def get_mean_vx_per_timestep(file_path, dt=1.0, t_start=0.0, t_end=np.inf, epsilon=1e-6):
+    particle_data = defaultdict(list)
+
+    # Leer datos
+    with open(file_path, 'r') as f:
+        for line in f:
+            parts = line.strip().split()
+            if len(parts) != 7:
+                continue
+            t, pid, x, y, _, _, _ = map(float, parts)
+            pid = int(pid)
+            particle_data[pid].append((t, x))
+
+    # Diccionario para acumular |vx| por tiempo t1
+    vx_by_time = defaultdict(list)
+
+    for pid, states in particle_data.items():
+        times_x = {round(t, 6): x for t, x in states}
+        sorted_times = sorted(times_x.keys())
+
+        for t0 in sorted_times:
+            if not (t_start <= t0 <= t_end - dt):
+                continue
+            t1 = round(t0 + dt, 6)
+            if t1 in times_x:
+                dx = times_x[t1] - times_x[t0]
+                abs_vx = abs(dx / dt)
+                vx_by_time[t1].append(abs_vx)
+
+    # Calcular media y error estándar por instante de tiempo t1
+    result = {}
+    for t1, vxs in sorted(vx_by_time.items()):
+        mean_vx = np.mean(vxs)
+        stderr_vx = np.std(vxs) / np.sqrt(len(vxs)) if len(vxs) > 1 else 0.0
+        result[t1] = (mean_vx, stderr_vx)
+
+    return result
+
+import matplotlib.pyplot as plt
+
+# Suponiendo que ya ejecutaste:
+# vx_per_t = get_mean_vx_per_timestep('data.txt', dt=1.0)
+
+def plot_vx_evolution(vx_per_t, qin):
+    times = sorted(vx_per_t.keys())
+    mean_vxs = [vx_per_t[t][0] for t in times]
+    stderr_vxs = [vx_per_t[t][1] for t in times]
+
+    plt.figure(figsize=(10, 5))
+    plt.errorbar(times, mean_vxs, yerr=stderr_vxs, fmt='o-', capsize=4, ecolor='gray', label='⟨|vx|⟩ ± stderr')
+
+    plt.title('Evolución temporal de la velocidad media |vx|')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('Velocidad media |vx|')
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"mean_vx_vs_time_for_qin_{qin}.png")
+
+
 if __name__ == '__main__':
     file_paths = [
         "output_Qin_1.00.txt",
@@ -151,5 +207,8 @@ if __name__ == '__main__':
         "output_Qin_10.00.txt",
     ]
 
-    analyze_multiple_qin_interval(file_paths, dt=1/33, t_start=10.0, t_end=40.0)
-    
+    analyze_multiple_qin_interval(file_paths, dt=1, t_start=10.0, t_end=40.0)
+    plot_final_time_vs_qin(file_paths, output_plot="tmax_vs_qin.png")
+    for file in file_paths:
+        result = get_mean_vx_per_timestep(file)
+        plot_vx_evolution(result, file.split('.')[0][-1])

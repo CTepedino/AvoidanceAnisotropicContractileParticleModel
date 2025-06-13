@@ -13,8 +13,11 @@ public class AACPM implements Ruleset {
 
 
     @Override
-    public void updateParticles(List<Particle> particles, double dt){
+    public List<Particle> updateParticles(List<Particle> particles){
+        List<Particle> next = new ArrayList<>();
+
         for (Particle p: particles){
+            Particle nextParticle = new Particle(p.id, p.position, p.velocity, p.radius, p.goesLeft);
             boolean inContact = false;
 
             Vector2D repulsion = new Vector2D(0, 0);
@@ -45,22 +48,26 @@ public class AACPM implements Ruleset {
 
                 avoidance = avoidance.add(computeWallAvoidance(p));
 
-                p.radius = Math.min(Parameters.R_MAX, p.radius + Parameters.R_MAX * dt / Parameters.TAU);
+                System.out.println(avoidance);
+
+                nextParticle.radius = Math.min(Parameters.R_MAX, p.radius + Parameters.R_MAX * Parameters.DT / Parameters.TAU);
                 Vector2D e_a = avoidance.add(desired).normalize();
 
-                double vMag = Parameters.V_D * Math.pow((p.radius - Parameters.R_MIN)/(Parameters.R_MAX - Parameters.R_MIN), Parameters.BETA);
+                double vMag = Parameters.V_D * Math.pow((nextParticle.radius - Parameters.R_MIN)/(Parameters.R_MAX - Parameters.R_MIN), Parameters.BETA);
 
-                p.velocity = e_a.scale(vMag);
+                nextParticle.velocity = e_a.scale(vMag);
             } else {
-                p.radius = Parameters.R_MIN;
+                nextParticle.radius = Parameters.R_MIN;
                 double vMag = Parameters.V_D;
                 Vector2D avoidanceDirection = repulsion.add(desired).normalize();
-                p.velocity = avoidanceDirection.scale(vMag);
+                nextParticle.velocity = avoidanceDirection.scale(vMag);
             }
 
-            p.position = p.position.add(p.velocity.scale(dt));
-
+            nextParticle.position = nextParticle.position.add(nextParticle.velocity.scale(Parameters.DT));
+            next.add(nextParticle);
         }
+
+        return next;
     }
 
     private List<Particle> getFrontColliders(Particle p, List<Particle> particles){
@@ -97,7 +104,7 @@ public class AACPM implements Ruleset {
         double dij = rij.magnitude();
 
         double beta = i.velocity.signedAngleTo(rij);
-        if (Math.abs(beta) > Math.PI / 2) {
+        if (Math.abs(beta) < Math.PI / 2) {
             return new Vector2D(0, 0);
         }
 

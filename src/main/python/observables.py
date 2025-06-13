@@ -190,7 +190,7 @@ def plot_vx_evolution(vx_per_t, qin):
     times = sorted(vx_per_t.keys())
     mean_vxs = [float(vx_per_t[t][0]) for t in times]
     stderr_vxs = [float(vx_per_t[t][1]) for t in times]
-    
+
     plt.figure(figsize=(20, 8))
     plt.errorbar(times, mean_vxs, yerr=stderr_vxs, 
                  fmt='o-', 
@@ -209,6 +209,48 @@ def plot_vx_evolution(vx_per_t, qin):
     plt.grid(True, linestyle='--', alpha=0.3)  # Lighter grid
     plt.tight_layout()
     plt.savefig(f"mean_vx_vs_time_for_qin_{qin}.png", dpi=300, bbox_inches='tight')
+
+
+def plot_two_vx_evolution(vx_per_t, vx_per_t_bis, qin):
+    times = sorted(vx_per_t.keys())
+    mean_vxs = [float(vx_per_t[t][0]) for t in times]
+    stderr_vxs = [float(vx_per_t[t][1]) for t in times]
+
+    plt.figure(figsize=(20, 8))
+    plt.errorbar(times, mean_vxs, yerr=stderr_vxs, 
+                 fmt='o-', 
+                 capsize=2,           # Smaller cap size
+                 ecolor='gray',       # Gray error bars instead of black
+                 alpha=0.6,           # Semi-transparent error bars
+                 markersize=3,        # Smaller markers
+                 linewidth=2,         # Thicker main line
+                 elinewidth=0.8,      # Thinner error bar lines
+                 capthick=0.8,
+                 label="Qin=1.0")        # Thinner caps
+
+    times = sorted(vx_per_t_bis.keys())
+    mean_vxs = [float(vx_per_t_bis[t][0]) for t in times]
+    stderr_vxs = [float(vx_per_t_bis[t][1]) for t in times]
+    plt.errorbar(times, mean_vxs, yerr=stderr_vxs, 
+                 fmt='o-', 
+                 capsize=2,           # Smaller cap size
+                 ecolor='gray',       # Gray error bars instead of black
+                 alpha=0.6,           # Semi-transparent error bars
+                 markersize=3,        # Smaller markers
+                 linewidth=2,         # Thicker main line
+                 elinewidth=0.8,      # Thinner error bar lines
+                 capthick=0.8,
+                 label="Qin=14.0")        # Thinner caps
+    
+    plt.xlabel('Tiempo (s)', fontsize=20)
+    plt.ylabel('<|vx|> (m/s)', fontsize=20)
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.grid(True, linestyle='--', alpha=0.3)  # Lighter grid
+    plt.legend(fontsize=20, loc="best")
+    plt.tight_layout()
+
+    plt.savefig(f"mean_vx_vs_time_for_qins.png", dpi=300, bbox_inches='tight')
 
 def get_avg_mean_vx_per_timestep_for_prefix(prefix, i_range=range(1, 11), dt=1.0, t_start=0.0, t_end=np.inf, epsilon=1e-6):
     # Acumulador global de velocidades por t1
@@ -268,14 +310,28 @@ if __name__ == '__main__':
         "output_Qin_8.00_",
         "output_Qin_9.00_",
         "output_Qin_10.00_",
+        "output_Qin_11.00_",
+        "output_Qin_12.00_",
+        "output_Qin_13.00_",
+        "output_Qin_14.00_",
     ]
+
+    #file_prefixes = [
+    #    "output_Qin_1.00_",
+    #    "output_Qin_14.00_",
+    #]
 
     #uncomment this
 
-    #analyze_multiple_qin_interval_averaged(file_prefixes)
-    #plot_avg_final_time_vs_qin(file_prefixes, output_plot="tmax_vs_qin.png")
+#    analyze_multiple_qin_interval_averaged(file_prefixes)
+#    plot_avg_final_time_vs_qin(file_prefixes, output_plot="tmax_vs_qin.png")
 
-    #for file_prefix in file_prefixes:
-    #    qin = float(file_prefix.split("_")[-2])
-    #    vx_per_t = get_avg_mean_vx_per_timestep_for_prefix(file_prefix, dt=1.0)
-    #    plot_vx_evolution(vx_per_t, qin)
+    vx_per_t_array = []
+
+    for file_prefix in file_prefixes:
+        qin = float(file_prefix.split("_")[-2])
+        vx_per_t = get_avg_mean_vx_per_timestep_for_prefix(file_prefix, dt=1.0)
+        vx_per_t_array.append(vx_per_t)
+
+    #uncomment this
+    #plot_two_vx_evolution(vx_per_t_array[0], vx_per_t_array[1], qin)
